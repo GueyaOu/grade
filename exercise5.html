@@ -128,9 +128,35 @@
   .verb-chip{padding:.5rem .3rem;border-radius:12px;text-align:center;font-weight:700;font-size:.76rem;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--surface2);user-select:none;position:relative}
   .verb-chip:hover{border-color:rgba(124,108,240,.4);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
   .verb-chip.selected{border-color:var(--accent);background:rgba(124,108,240,.15);box-shadow:0 0 16px rgba(124,108,240,.15)}
-  .verb-chip .past{display:block;font-size:.6rem;color:var(--orange);margin-top:1px}
   .verb-chip .verb-emoji{font-size:1.05rem;display:block;margin-bottom:1px}
   .verb-chip.used{opacity:.2;pointer-events:none;transform:scale(.95)}
+
+  /* ── Verb test input ── */
+  .verb-test{display:flex;flex-direction:column;align-items:center;gap:.6rem;margin-top:.8rem;animation:fadeUp .25s ease-out}
+  .verb-test-label{font-size:.85rem;color:var(--muted);font-weight:700;text-align:center}
+  .verb-test-label strong{color:var(--text);font-size:1rem}
+  .verb-test-input{width:100%;max-width:280px;padding:.7rem 1rem;border-radius:12px;border:2px solid var(--surface3);background:var(--surface2);color:var(--text);font-family:inherit;font-size:1.15rem;font-weight:700;text-align:center;transition:border-color .2s}
+  .verb-test-input:focus{outline:none;border-color:var(--accent)}
+  .verb-test-input::placeholder{color:rgba(255,255,255,.2);font-weight:600}
+  .verb-test-input.correct{border-color:var(--green);background:rgba(0,210,160,.08);animation:correctPop .4s ease-out}
+  .verb-test-input.wrong{border-color:var(--red);animation:shake .4s ease-out}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  @keyframes correctPop{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+  .verb-test-feedback{font-size:.78rem;font-weight:800;min-height:1.2em}
+  .verb-test-feedback.ok{color:var(--green)}
+  .verb-test-feedback.nope{color:var(--red)}
+  .verb-test-attempts{font-size:.65rem;color:var(--muted);font-weight:700}
+
+  /* ── Full sentence input ── */
+  .sentence-input-wrap{margin-top:.7rem;animation:fadeUp .25s ease-out}
+  .sentence-model{background:var(--surface2);border-radius:12px;padding:.7rem .9rem;font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:.5rem;border:1px solid rgba(255,255,255,.04)}
+  .sentence-model strong{color:var(--orange)}
+  .sentence-model .blank{display:inline-block;min-width:60px;border-bottom:2px dashed var(--orange);margin:0 .15rem}
+  .sentence-full-input{width:100%;padding:.7rem 1rem;border-radius:12px;border:2px solid var(--surface3);background:var(--surface2);color:var(--text);font-family:inherit;font-size:1.05rem;font-weight:700;transition:border-color .2s}
+  .sentence-full-input:focus{outline:none;border-color:var(--accent)}
+  .sentence-full-input::placeholder{color:rgba(255,255,255,.18);font-weight:600}
+  .sentence-full-input.correct{border-color:var(--green);background:rgba(0,210,160,.06)}
+  .sentence-full-input.wrong{border-color:var(--red);animation:shake .4s ease-out}
 
   .hint-box{background:linear-gradient(135deg,rgba(255,192,72,.06),rgba(255,107,157,.04));border:1px solid rgba(255,192,72,.12);border-radius:14px;padding:.7rem .9rem;margin-top:.6rem;font-size:.78rem;line-height:1.5;color:var(--orange);animation:fadeUp .25s ease-out}
   .hint-box .hint-title{font-weight:800;font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.25rem;color:var(--pink)}
@@ -275,30 +301,39 @@
 
   <div class="round-indicator" id="roundIndicator">Round 1 / 5</div>
 
-  <!-- Step progress -->
+  <!-- Step progress (4 steps now) -->
   <div class="step-progress" id="stepProgress">
     <div class="step-dot active" id="dot1"></div>
     <div class="step-connector"></div>
     <div class="step-dot" id="dot2"></div>
     <div class="step-connector"></div>
     <div class="step-dot" id="dot3"></div>
+    <div class="step-connector"></div>
+    <div class="step-dot" id="dot4"></div>
   </div>
 
+  <!-- Step 1: Pick a verb (base form only, NO past shown) -->
   <div id="stepVerb" class="prompt-section">
     <h3><span class="step-num">1</span> Choose a life event</h3>
     <div id="verbGrid" class="verb-grid"></div>
-    <div id="verbHint" class="hint-box hidden"></div>
   </div>
 
+  <!-- Step 2: Type the past simple -->
+  <div id="stepVerbTest" class="prompt-section hidden">
+    <h3><span class="step-num">2</span> Write the past simple</h3>
+    <div class="verb-test" id="verbTestArea"></div>
+  </div>
+
+  <!-- Step 3: Pick family member -->
   <div id="stepFamily" class="prompt-section hidden">
-    <h3><span class="step-num">2</span> Choose a family member</h3>
+    <h3><span class="step-num">3</span> Choose a family member</h3>
     <div id="familyGrid" class="family-grid"></div>
   </div>
 
+  <!-- Step 4: Type the full sentence -->
   <div id="stepSentence" class="prompt-section hidden">
-    <h3><span class="step-num">3</span> Complete your sentence</h3>
-    <div id="sentenceBuilder" class="sentence-builder"></div>
-    <div id="sentenceHint" class="hint-box hidden"></div>
+    <h3><span class="step-num">4</span> Write your sentence</h3>
+    <div id="sentenceArea" class="sentence-input-wrap"></div>
     <div class="mt-1 text-center">
       <button class="btn btn-green btn-sm" id="btnSay" type="button">\u{1F4AC} Say it!</button>
     </div>
@@ -427,7 +462,7 @@ function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=
 
 // ── Step progress dots ──
 function setStepDots(step) {
-  ['dot1','dot2','dot3'].forEach((id,i) => {
+  ['dot1','dot2','dot3','dot4'].forEach((id,i) => {
     const dot = $(id);
     dot.classList.remove('active','done');
     if (i < step - 1) dot.classList.add('done');
@@ -460,7 +495,7 @@ function updateTimerDisplay(){
 function handleTimeUp(){
   addBubble('','Time\'s up! \u23F0','system');
   state.history.push({a:state.currentRoundData.a||'(skipped)',b:state.currentRoundData.b||'(skipped)',verb:state.currentRoundData.verb||'\u2014',round:state.currentRound,time:ROUND_TIME});
-  hide('stepVerb');hide('stepFamily');hide('stepSentence');hide('reactionSection');
+  hide('stepVerb');hide('stepVerbTest');hide('stepFamily');hide('stepSentence');hide('reactionSection');
   if(state.currentRound>=state.totalRounds)setTimeout(endGame,600);else show('nextRoundSection');
 }
 function getRoundElapsed(){return Math.floor((Date.now()-state.roundStartTime)/1000)}
@@ -523,24 +558,99 @@ function renderVerbGrid(){
     chip.dataset.idx=i;
     chip.appendChild(makeEl('span','verb-emoji',v.emoji));
     chip.appendChild(document.createTextNode(v.base));
-    chip.appendChild(makeEl('span','past',v.past));
     chip.addEventListener('click',()=>pickVerb(i));
     grid.appendChild(chip);
   });
-  hide('verbHint');
   setStepDots(1);
 }
 
 function pickVerb(idx){
   if(state.usedVerbs.has(idx))return;
   state.selectedVerb=idx;
+  state.verbAttempts=0;
   $('verbGrid').querySelectorAll('.verb-chip').forEach(c=>c.classList.remove('selected'));
   $('verbGrid').querySelector('[data-idx="'+idx+'"]').classList.add('selected');
-  const v=VERBS[idx],hb=$('verbHint');clearChildren(hb);
-  hb.appendChild(makeEl('div','hint-title','Example sentences:'));
-  shuffle(v.hints).slice(0,2).forEach(h=>hb.appendChild(makeEl('div','hint-example','\u201C'+h+'\u201D')));
-  show('verbHint');show('stepFamily');renderFamilyGrid();
+  show('stepVerbTest');
+  buildVerbTest();
   setStepDots(2);
+}
+
+function buildVerbTest(){
+  const v=VERBS[state.selectedVerb];
+  const area=$('verbTestArea');clearChildren(area);
+
+  const label=makeEl('div','verb-test-label');
+  label.appendChild(document.createTextNode('What is the past simple of '));
+  label.appendChild(makeEl('strong','','"'+v.base+'"'));
+  label.appendChild(document.createTextNode(' ?'));
+  area.appendChild(label);
+
+  const input=document.createElement('input');
+  input.className='verb-test-input';input.id='verbTestInput';
+  input.placeholder='Type past simple...';input.autocomplete='off';
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')checkVerbAnswer()});
+  area.appendChild(input);
+
+  const feedback=makeEl('div','verb-test-feedback');feedback.id='verbTestFeedback';
+  area.appendChild(feedback);
+
+  const attemptsEl=makeEl('div','verb-test-attempts');attemptsEl.id='verbTestAttempts';
+  area.appendChild(attemptsEl);
+
+  const btn=makeEl('button','btn btn-primary btn-sm','Check \u2713');
+  btn.type='button';btn.id='btnCheckVerb';
+  btn.addEventListener('click',checkVerbAnswer);
+  area.appendChild(btn);
+
+  setTimeout(()=>input.focus(),60);
+}
+
+function checkVerbAnswer(){
+  const v=VERBS[state.selectedVerb];
+  const input=$('verbTestInput');
+  const fb=$('verbTestFeedback');
+  const answer=input.value.trim().toLowerCase();
+  const correct=v.past.toLowerCase();
+
+  state.verbAttempts++;
+
+  if(answer===correct){
+    input.className='verb-test-input correct';input.disabled=true;
+    fb.textContent='\u2705 Correct!';fb.className='verb-test-feedback ok';
+    $('btnCheckVerb').style.display='none';
+
+    // Bonus for first try
+    const who=state.phase.startsWith('a')?'a':'b';
+    if(state.verbAttempts===1){
+      if(who==='a')state.scoreA+=2;else state.scoreB+=2;
+      updateScores();
+      const ptsEl=$(who==='a'?'scoreA':'scoreB');
+      ptsEl.classList.remove('pts-pop');void ptsEl.offsetWidth;ptsEl.classList.add('pts-pop');
+      fb.textContent='\u2705 Perfect! First try +2 bonus!';
+    }
+
+    setTimeout(()=>{show('stepFamily');renderFamilyGrid();setStepDots(3)},600);
+  } else {
+    input.className='verb-test-input wrong';
+    fb.className='verb-test-feedback nope';
+    setTimeout(()=>{input.classList.remove('wrong')},400);
+
+    if(state.verbAttempts===1){
+      fb.textContent='\u274C Try again!';
+    } else if(state.verbAttempts===2){
+      // Give a hint: show first letter + length
+      const hint=correct[0].toUpperCase()+correct.slice(1).replace(/[a-z]/g,'_ ');
+      fb.textContent='\u274C Hint: '+hint+' ('+correct.length+' letters)';
+    } else {
+      // After 3 fails, reveal
+      fb.textContent='\u{1F4A1} Answer: '+v.past;fb.className='verb-test-feedback ok';
+      input.value=v.past;input.className='verb-test-input correct';input.disabled=true;
+      $('btnCheckVerb').style.display='none';
+      setTimeout(()=>{show('stepFamily');renderFamilyGrid();setStepDots(3)},1200);
+    }
+    $('verbTestAttempts').textContent='Attempt '+state.verbAttempts+'/3';
+    input.value='';input.focus();
+  }
 }
 
 function renderFamilyGrid(){
@@ -552,34 +662,78 @@ function pickFamily(idx){
   state.selectedFamily=idx;
   $('familyGrid').querySelectorAll('.family-pill').forEach(p=>p.classList.remove('selected'));
   $('familyGrid').querySelector('[data-idx="'+idx+'"]').classList.add('selected');
-  show('stepSentence');buildSentence();
-  setStepDots(3);
+  show('stepSentence');buildSentenceInput();
+  setStepDots(4);
 }
 
-function buildSentence(){
-  const v=VERBS[state.selectedVerb],f=FAMILY[state.selectedFamily],b=$('sentenceBuilder');
-  clearChildren(b);
-  b.appendChild(makeEl('span','slot slot-family',f));
-  b.appendChild(makeEl('span','slot slot-verb',v.past));
-  if(v.needsPlace||v.detail){
-    if(v.needsPlace&&v.prep)b.appendChild(makeEl('span','',v.prep));
-    const input=document.createElement('input');input.className='place-input';input.id='placeInput';
-    input.placeholder=v.placeTip||v.detail||'where?';input.autocomplete='off';
-    input.addEventListener('keydown',e=>{if(e.key==='Enter')saySentence()});
-    b.appendChild(input);setTimeout(()=>input.focus(),60);
+function buildSentenceInput(){
+  const v=VERBS[state.selectedVerb],f=FAMILY[state.selectedFamily];
+  const area=$('sentenceArea');clearChildren(area);
+
+  // Show model pattern
+  const model=makeEl('div','sentence-model');
+  const patternText=document.createTextNode('Pattern: ');
+  model.appendChild(patternText);
+  model.appendChild(makeEl('strong','',f));
+  model.appendChild(document.createTextNode(' + '));
+  model.appendChild(makeEl('strong','',v.past));
+  if(v.needsPlace){
+    model.appendChild(document.createTextNode(' '+v.prep+' '));
+    const blank=makeEl('span','blank','\u00A0\u00A0\u00A0\u00A0\u00A0');
+    model.appendChild(blank);
+  } else if(v.detail){
+    model.appendChild(document.createTextNode(' '));
+    const blank=makeEl('span','blank','\u00A0\u00A0\u00A0\u00A0\u00A0');
+    model.appendChild(blank);
   }
-  b.appendChild(makeEl('span','','.'));
-  const hb=$('sentenceHint');clearChildren(hb);
-  if(v.placeTip){hb.appendChild(makeEl('div','hint-title','\u{1F4A1} Hint'));const t=makeEl('div','','Type '+v.placeTip);t.style.cssText='color:var(--muted);font-size:.78rem';hb.appendChild(t);show('sentenceHint')}else hide('sentenceHint');
+  area.appendChild(model);
+
+  // Show a random example as hint
+  const hint=makeEl('div','hint-box');
+  hint.appendChild(makeEl('div','hint-title','\u{1F4A1} Example'));
+  const ex=shuffle(v.hints)[0];
+  hint.appendChild(makeEl('div','hint-example','\u201C'+ex+'\u201D'));
+  area.appendChild(hint);
+
+  // Full sentence input
+  const input=document.createElement('input');
+  input.className='sentence-full-input';input.id='sentenceInput';
+  input.placeholder='Type your full sentence here...';input.autocomplete='off';
+  input.addEventListener('keydown',e=>{if(e.key==='Enter')saySentence()});
+  area.appendChild(input);
+  setTimeout(()=>input.focus(),60);
 }
 
 function saySentence(){
-  const v=VERBS[state.selectedVerb],f=FAMILY[state.selectedFamily],pi=$('placeInput'),detail=pi?pi.value.trim():'';
-  if((v.needsPlace||v.detail)&&!detail){if(pi){pi.style.borderBottomColor='var(--red)';pi.focus()}return}
-  let sentence=f+' '+v.past;
-  if(v.needsPlace&&detail)sentence+=' '+(v.prep?v.prep+' ':'')+detail;
-  else if(v.detail&&detail)sentence+=' '+detail;
-  sentence+='.';
+  const v=VERBS[state.selectedVerb],f=FAMILY[state.selectedFamily];
+  const input=$('sentenceInput');
+  const raw=input.value.trim();
+
+  if(!raw){input.classList.add('wrong');setTimeout(()=>input.classList.remove('wrong'),400);input.focus();return}
+
+  // Basic validation: must contain the past tense and a family member reference
+  const lower=raw.toLowerCase();
+  const hasPast=lower.includes(v.past.toLowerCase());
+  const hasFamily=FAMILY.some(fm=>lower.includes(fm.toLowerCase()));
+
+  if(!hasPast){
+    input.classList.add('wrong');setTimeout(()=>input.classList.remove('wrong'),400);
+    // Show helpful feedback
+    const area=$('sentenceArea');
+    let fb=document.getElementById('sentenceFeedback');
+    if(!fb){fb=makeEl('div','verb-test-feedback nope');fb.id='sentenceFeedback';area.appendChild(fb)}
+    fb.textContent='\u274C Use the past simple: "'+v.past+'"';fb.className='verb-test-feedback nope';
+    input.focus();return;
+  }
+
+  // Clean up: ensure it ends with a period
+  let sentence=raw;
+  if(!sentence.endsWith('.'))sentence+='.';
+  // Capitalize first letter
+  sentence=sentence[0].toUpperCase()+sentence.slice(1);
+
+  input.className='sentence-full-input correct';input.disabled=true;
+
   const elapsed=getRoundElapsed();
 
   if(state.phase.startsWith('a')){
@@ -587,14 +741,14 @@ function saySentence(){
     addBubble(state.nameA,sentence,'a');state.scoreA+=1;state.totalSentences++;
     state.usedVerbs.add(state.selectedVerb);updateScores();showSpeedBonus(elapsed,'a');checkStreak(state.totalSentences);
     state.phase='b-react';setTurn('b');showReactions();
-    hide('stepVerb');hide('stepFamily');hide('stepSentence');
+    hide('stepVerb');hide('stepVerbTest');hide('stepFamily');hide('stepSentence');
   } else {
     const roundTime=getRoundElapsed();state.currentRoundData.b=sentence;
     addBubble(state.nameB,sentence,'b');state.scoreB+=1;state.totalSentences++;updateScores();
     showSpeedBonus(roundTime-(state.currentRoundData.aTime||0),'b');checkStreak(state.totalSentences);
     const totalRoundTime=stopTimer();state.totalTime+=totalRoundTime;
     if(totalRoundTime<state.fastestRound)state.fastestRound=totalRoundTime;
-    hide('stepVerb');hide('stepFamily');hide('stepSentence');hide('reactionSection');
+    hide('stepVerb');hide('stepVerbTest');hide('stepFamily');hide('stepSentence');hide('reactionSection');
     state.history.push({a:state.currentRoundData.a,b:state.currentRoundData.b,verb:state.currentRoundData.verb,round:state.currentRound,time:totalRoundTime});
     if(state.currentRound>=state.totalRounds)setTimeout(endGame,800);else show('nextRoundSection');
   }
@@ -613,7 +767,8 @@ function react(text){addBubble(state.nameB,text,'b');afterReaction()}
 function askFollowup(q){addBubble(state.nameB,q,'b');state.scoreB+=1;updateScores();hide('followupSection');afterReaction()}
 function afterReaction(){
   state.phase='b-verb';state.selectedVerb=null;state.selectedFamily=null;
-  clearChildren($('reactions'));hide('followupSection');setText('reactTitle','Now '+state.nameB+', share YOUR sentence!');
+  clearChildren($('reactions'));hide('followupSection');hide('stepVerbTest');hide('stepFamily');hide('stepSentence');
+  setText('reactTitle','Now '+state.nameB+', share YOUR sentence!');
   show('stepVerb');renderVerbGrid();
 }
 
@@ -638,7 +793,7 @@ function startRound(){
   state.currentRoundData={a:'',b:'',verb:''};
   setText('roundIndicator','Round '+state.currentRound+' / '+state.totalRounds);
   updateScores();setTurn('a');clearChildren($('conversation'));
-  show('stepVerb');hide('stepFamily');hide('stepSentence');hide('reactionSection');hide('nextRoundSection');
+  show('stepVerb');hide('stepVerbTest');hide('stepFamily');hide('stepSentence');hide('reactionSection');hide('nextRoundSection');
   renderVerbGrid();startTimer();
 }
 
