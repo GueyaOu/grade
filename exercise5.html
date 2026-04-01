@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercise 5 — Life Events Pair Work</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #222240;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --green: #00b894;
+    --orange: #fdcb6e;
+    --pink: #fd79a8;
+    --blue: #74b9ff;
+    --red: #ff7675;
+    --text: #f0f0f0;
+    --muted: #a0a0b8;
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header { text-align: center; padding: 1.5rem 1rem .8rem; }
+  .header h1 {
+    font-size: 2rem; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent2), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header p { color: var(--muted); font-size: .95rem; margin-top: .2rem; }
+  .badge {
+    display: inline-block; background: var(--accent); color: white;
+    font-size: .7rem; font-weight: 700; padding: .2rem .65rem;
+    border-radius: 99px; margin-top: .4rem; text-transform: uppercase; letter-spacing: .05em;
+  }
+
+  .screen { display: none; max-width: 660px; margin: 0 auto; padding: 0 1rem 2rem; }
+  .screen.active { display: block; }
+
+  /* ── Setup ── */
+  .setup-card {
+    background: var(--surface); border-radius: var(--radius); padding: 1.5rem;
+    margin-top: 1rem; border: 1px solid #2d2d50;
+  }
+  .setup-card label {
+    display: block; font-weight: 700; font-size: .8rem; color: var(--accent2);
+    margin-bottom: .3rem; text-transform: uppercase; letter-spacing: .04em;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .8rem 1.8rem; border: none; border-radius: 12px;
+    font-family: inherit; font-size: 1rem; font-weight: 800;
+    cursor: pointer; transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; box-shadow: 0 4px 20px rgba(108,92,231,.4); }
+  .btn-green { background: linear-gradient(135deg, var(--green), #55efc4); color: #0a3d2d; box-shadow: 0 4px 20px rgba(0,184,148,.3); }
+  .btn-orange { background: linear-gradient(135deg, var(--orange), #f39c12); color: #4a3500; box-shadow: 0 4px 20px rgba(253,203,110,.3); }
+  .btn-pink { background: linear-gradient(135deg, var(--pink), #e84393); color: white; box-shadow: 0 4px 20px rgba(253,121,168,.3); }
+  .btn-sm { padding: .5rem 1rem; font-size: .85rem; border-radius: 10px; }
+  .btn-block { width: 100%; justify-content: center; }
+
+  /* ── Pair picker ── */
+  .pair-picker { margin-bottom: 1.2rem; }
+  .pair-display {
+    display: flex; align-items: center; gap: .8rem; justify-content: center;
+    margin: 1rem 0;
+  }
+  .pair-card {
+    flex: 1; max-width: 200px; text-align: center; padding: 1rem .8rem;
+    border-radius: 14px; font-weight: 800; font-size: 1.05rem;
+    position: relative; overflow: hidden;
+  }
+  .pair-card.a-card {
+    background: linear-gradient(135deg, rgba(108,92,231,.3), rgba(108,92,231,.1));
+    border: 2px solid var(--accent);
+  }
+  .pair-card.b-card {
+    background: linear-gradient(135deg, rgba(0,184,148,.3), rgba(0,184,148,.1));
+    border: 2px solid var(--green);
+  }
+  .pair-card .pair-label {
+    font-size: .65rem; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--muted); margin-bottom: .3rem;
+  }
+  .pair-card .pair-name { font-size: 1.1rem; }
+  .pair-vs { font-size: 1.4rem; font-weight: 900; color: var(--orange); }
+
+  .shuffle-btn {
+    display: flex; align-items: center; justify-content: center; gap: .5rem;
+    width: 100%; padding: .75rem; border: 2px dashed #3d3d60; border-radius: 12px;
+    background: transparent; color: var(--text); font-family: inherit;
+    font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .2s;
+  }
+  .shuffle-btn:hover { border-color: var(--accent); background: rgba(108,92,231,.08); }
+
+  @keyframes slotSpin {
+    0% { transform: translateY(0); opacity: 1; }
+    30% { transform: translateY(-20px); opacity: 0; }
+    60% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .spinning .pair-name { animation: slotSpin .4s ease-in-out; }
+
+  /* ── Round options ── */
+  .round-opts { display: flex; gap: .5rem; margin-bottom: 1rem; }
+  .round-opt-btn {
+    flex: 1; padding: .5rem; border: 2px solid #2d2d50; border-radius: 10px;
+    background: var(--surface2); color: var(--text); font-family: inherit;
+    font-size: .95rem; font-weight: 800; cursor: pointer; transition: all .15s;
+    text-align: center;
+  }
+  .round-opt-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+  /* ── Game ── */
+  .turn-banner {
+    text-align: center; padding: .8rem; border-radius: var(--radius);
+    margin-bottom: 1rem; font-weight: 800; font-size: 1.15rem; transition: all .3s;
+  }
+  .turn-a { background: linear-gradient(135deg, rgba(108,92,231,.25), rgba(108,92,231,.1)); border: 2px solid var(--accent); }
+  .turn-b { background: linear-gradient(135deg, rgba(0,184,148,.25), rgba(0,184,148,.1)); border: 2px solid var(--green); }
+  .turn-banner .turn-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+
+  .score-bar { display: flex; gap: .8rem; margin-bottom: 1rem; }
+  .score-box {
+    flex: 1; text-align: center; background: var(--surface); border-radius: 12px;
+    padding: .5rem; border: 1px solid #2d2d50;
+  }
+  .score-box .name { font-size: .7rem; color: var(--muted); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .score-box .pts { font-size: 1.4rem; font-weight: 900; }
+  .score-box.a .pts { color: var(--accent2); }
+  .score-box.b .pts { color: var(--green); }
+
+  .round-indicator { text-align: center; font-size: .78rem; color: var(--muted); margin-bottom: .8rem; font-weight: 600; }
+
+  .prompt-section {
+    background: var(--surface); border-radius: var(--radius); padding: 1.2rem;
+    margin-bottom: .8rem; border: 1px solid #2d2d50;
+  }
+  .prompt-section h3 {
+    font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--muted); margin-bottom: .6rem;
+  }
+
+  /* ── Verb grid ── */
+  .verb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+  .verb-chip {
+    padding: .55rem .35rem; border-radius: 10px; text-align: center;
+    font-weight: 700; font-size: .78rem; cursor: pointer; border: 2px solid transparent;
+    transition: all .2s; background: var(--surface2); user-select: none; position: relative;
+  }
+  .verb-chip:hover { border-color: var(--accent); transform: scale(1.04); }
+  .verb-chip.selected { border-color: var(--accent); background: rgba(108,92,231,.2); }
+  .verb-chip .past { display: block; font-size: .65rem; color: var(--orange); margin-top: 2px; }
+  .verb-chip .verb-emoji { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+  .verb-chip.used { opacity: .3; pointer-events: none; }
+
+  /* ── Hint box ── */
+  .hint-box {
+    background: linear-gradient(135deg, rgba(253,203,110,.08), rgba(253,121,168,.08));
+    border: 1px solid rgba(253,203,110,.2); border-radius: 12px;
+    padding: .8rem 1rem; margin-top: .7rem; font-size: .82rem;
+    line-height: 1.5; color: var(--orange);
+  }
+  .hint-box .hint-title {
+    font-weight: 800; font-size: .7rem; text-transform: uppercase;
+    letter-spacing: .06em; margin-bottom: .3rem; color: var(--pink);
+  }
+  .hint-box .hint-example { color: var(--text); font-weight: 600; font-style: italic; }
+
+  /* ── Family grid ── */
+  .family-grid { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .family-pill {
+    padding: .4rem .8rem; border-radius: 99px; font-size: .8rem; font-weight: 700;
+    cursor: pointer; background: var(--surface2); border: 2px solid transparent;
+    transition: all .2s; user-select: none;
+  }
+  .family-pill:hover { border-color: var(--pink); }
+  .family-pill.selected { border-color: var(--pink); background: rgba(253,121,168,.15); }
+
+  /* ── Sentence builder ── */
+  .sentence-builder {
+    background: var(--surface2); border-radius: 12px; padding: 1rem; margin-top: .8rem;
+    min-height: 55px; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+    font-size: 1.05rem; font-weight: 700; border: 2px dashed #3d3d60;
+  }
+  .sentence-builder .slot { padding: .25rem .6rem; border-radius: 8px; }
+  .slot-family { background: rgba(253,121,168,.2); color: var(--pink); }
+  .slot-verb { background: rgba(253,203,110,.2); color: var(--orange); }
+
+  .place-input {
+    background: transparent; border: none; border-bottom: 2px dashed var(--blue);
+    color: var(--blue); font-family: inherit; font-size: 1rem; font-weight: 700;
+    width: 130px; padding: .2rem .3rem; text-align: center;
+  }
+  .place-input:focus { outline: none; border-bottom-style: solid; }
+  .place-input::placeholder { color: rgba(116,185,255,.35); }
+
+  /* ── Conversation ── */
+  .conversation { display: flex; flex-direction: column; gap: .6rem; margin-top: .8rem; max-height: 280px; overflow-y: auto; }
+  .bubble {
+    max-width: 85%; padding: .7rem 1rem; border-radius: 16px;
+    font-size: .95rem; font-weight: 600; animation: bubbleIn .3s ease-out; line-height: 1.4;
+  }
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(10px) scale(.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .bubble-a { align-self: flex-start; background: linear-gradient(135deg, var(--accent), #8b5cf6); border-bottom-left-radius: 4px; }
+  .bubble-b { align-self: flex-end; background: linear-gradient(135deg, var(--green), #55efc4); color: #0a3d2d; border-bottom-right-radius: 4px; }
+  .bubble .speaker { font-size: .65rem; opacity: .7; text-transform: uppercase; letter-spacing: .05em; }
+
+  /* ── Reactions ── */
+  .reactions { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+  .reaction-btn {
+    padding: .4rem .8rem; border-radius: 99px; border: 2px solid #3d3d60;
+    background: var(--surface); color: var(--text); font-family: inherit;
+    font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .15s;
+  }
+  .reaction-btn:hover { border-color: var(--orange); background: rgba(253,203,110,.1); transform: scale(1.05); }
+
+  /* ── Follow-up question ── */
+  .followup-section {
+    background: rgba(116,185,255,.08); border: 1px solid rgba(116,185,255,.2);
+    border-radius: 12px; padding: .8rem 1rem; margin-top: .6rem;
+  }
+  .followup-section .followup-title {
+    font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--blue); font-weight: 800; margin-bottom: .4rem;
+  }
+  .followup-grid { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .followup-btn {
+    padding: .35rem .7rem; border-radius: 99px; border: 1.5px solid rgba(116,185,255,.3);
+    background: rgba(116,185,255,.08); color: var(--blue); font-family: inherit;
+    font-size: .78rem; font-weight: 700; cursor: pointer; transition: all .15s;
+  }
+  .followup-btn:hover { background: rgba(116,185,255,.15); border-color: var(--blue); }
+
+  /* ── Results ── */
+  .results-card {
+    background: var(--surface); border-radius: var(--radius); padding: 1.5rem;
+    text-align: center; border: 1px solid #2d2d50; margin-top: 1rem;
+  }
+  .results-card h2 {
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--orange), var(--pink));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .final-scores { display: flex; justify-content: center; gap: 2rem; margin: 1.2rem 0; }
+  .final-score { text-align: center; }
+  .final-score .big { font-size: 2.5rem; font-weight: 900; }
+  .final-score .label { font-size: .8rem; color: var(--muted); }
+  .final-score.a .big { color: var(--accent2); }
+  .final-score.b .big { color: var(--green); }
+
+  .star-badge {
+    display: inline-block; padding: .4rem 1rem; border-radius: 99px;
+    font-size: .85rem; font-weight: 800; margin-top: .5rem;
+    background: linear-gradient(135deg, var(--orange), var(--pink));
+    color: white; animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+  .history-list { text-align: left; margin-top: 1.2rem; max-height: 220px; overflow-y: auto; }
+  .history-item { background: var(--surface2); border-radius: 10px; padding: .7rem .9rem; margin-bottom: .4rem; font-size: .85rem; }
+  .history-item .hi-round { color: var(--muted); font-size: .7rem; font-weight: 700; }
+
+  .confetti-piece {
+    position: fixed; border-radius: 2px;
+    animation: confettiFall 2.5s ease-out forwards; pointer-events: none; z-index: 999;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+
+  .hidden { display: none !important; }
+  .mt-1 { margin-top: .8rem; }
+  .mt-2 { margin-top: 1.2rem; }
+  .text-center { text-align: center; }
+
+  .help-tip {
+    background: rgba(116,185,255,.1); border: 1px solid rgba(116,185,255,.25);
+    border-radius: 10px; padding: .6rem .9rem; font-size: .78rem;
+    color: var(--blue); margin-top: .6rem; line-height: 1.5;
+  }
+
+  /* ── Streak ── */
+  .streak-popup {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--accent), var(--pink));
+    padding: 1.5rem 2.5rem; border-radius: 20px; font-size: 1.5rem; font-weight: 900;
+    z-index: 1000; text-align: center; pointer-events: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5);
+  }
+  .streak-popup.show {
+    animation: streakPop .8s ease-out forwards;
+  }
+  @keyframes streakPop {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    40% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(.8); opacity: 0; }
+  }
+
+  /* ── Timer ── */
+  .timer-bar-container {
+    background: var(--surface); border-radius: 99px; height: 28px;
+    margin-bottom: 1rem; position: relative; overflow: hidden;
+    border: 1px solid #2d2d50;
+  }
+  .timer-bar-fill {
+    height: 100%; border-radius: 99px; transition: width .3s linear;
+    background: linear-gradient(90deg, var(--green), #55efc4);
+  }
+  .timer-bar-fill.warning { background: linear-gradient(90deg, var(--orange), #e17055); }
+  .timer-bar-fill.danger { background: linear-gradient(90deg, var(--red), #d63031); animation: timerPulse .5s ease-in-out infinite; }
+  @keyframes timerPulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+  .timer-text {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 800; letter-spacing: .04em;
+  }
+  .timer-text .timer-icon { margin-right: .3rem; }
+
+  /* ── Speed bonus popup ── */
+  .speed-bonus {
+    position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    padding: .8rem 1.5rem; border-radius: 14px; font-weight: 900;
+    font-size: 1.1rem; z-index: 1001; pointer-events: none; text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  .speed-bonus.lightning {
+    background: linear-gradient(135deg, #fdcb6e, #f39c12);
+    color: #4a3500;
+  }
+  .speed-bonus.fast {
+    background: linear-gradient(135deg, var(--green), #55efc4);
+    color: #0a3d2d;
+  }
+  .speed-bonus.show {
+    animation: bonusPop .9s ease-out forwards;
+  }
+  @keyframes bonusPop {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    30% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    60% { transform: translate(-50%, -60%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -80%) scale(.7); opacity: 0; }
+  }
+
+  /* ── Score animation ── */
+  .pts-pop { animation: ptsPop .4s ease-out; }
+  @keyframes ptsPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── Results extras ── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem;
+    margin: 1rem 0;
+  }
+  .stat-card {
+    background: var(--surface2); border-radius: 12px; padding: .7rem .5rem;
+    text-align: center;
+  }
+  .stat-card .stat-value { font-size: 1.4rem; font-weight: 900; color: var(--accent2); }
+  .stat-card .stat-label { font-size: .65rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+
+  @media (max-width: 500px) {
+    .verb-grid { grid-template-columns: repeat(2, 1fr); }
+    .header h1 { font-size: 1.5rem; }
+    .pair-display { flex-direction: column; gap: .4rem; }
+    .pair-vs { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Life Events Pair Work</h1>
+  <p>Exercise 5 — Compare sentences about your family</p>
+  <div class="badge">Past Simple Practice</div>
+</div>
+
+<!-- ═══ SETUP ═══ -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-card">
+    <div class="pair-picker">
+      <label>Random Pair from Class 6-4</label>
+      <div class="pair-display" id="pairDisplay">
+        <div class="pair-card a-card">
+          <div class="pair-label">Student A</div>
+          <div class="pair-name" id="pairNameA">---</div>
+        </div>
+        <div class="pair-vs">VS</div>
+        <div class="pair-card b-card">
+          <div class="pair-label">Student B</div>
+          <div class="pair-name" id="pairNameB">---</div>
+        </div>
+      </div>
+      <button class="shuffle-btn" id="btnShuffle" type="button">Shuffle new pair</button>
+    </div>
+
+    <label>Number of rounds</label>
+    <div class="round-opts" id="roundOptions"></div>
+
+    <button class="btn btn-primary btn-block" id="btnStart" type="button">Start the conversation</button>
+  </div>
+  <div class="help-tip mt-1">
+    Each round: Student A shares a sentence about their family, Student B reacts and shares their own. Example hints help you build sentences!
+  </div>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div id="screen-game" class="screen">
+  <div id="turnBanner" class="turn-banner turn-a">
+    <div class="turn-label">It's your turn</div>
+    <span id="turnName">Student A</span>
+  </div>
+
+  <div class="timer-bar-container">
+    <div class="timer-bar-fill" id="timerBarFill" style="width:100%"></div>
+    <div class="timer-text"><span class="timer-icon">\u23F1</span><span id="timerText">60s</span></div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-box a"><div class="name" id="scoreNameA">A</div><div class="pts" id="scoreA">0</div></div>
+    <div class="score-box b"><div class="name" id="scoreNameB">B</div><div class="pts" id="scoreB">0</div></div>
+  </div>
+  <div class="round-indicator" id="roundIndicator">Round 1 / 5</div>
+
+  <!-- Step 1: Verb -->
+  <div id="stepVerb" class="prompt-section">
+    <h3>1. Choose a life event</h3>
+    <div id="verbGrid" class="verb-grid"></div>
+    <div id="verbHint" class="hint-box hidden"></div>
+  </div>
+
+  <!-- Step 2: Family -->
+  <div id="stepFamily" class="prompt-section hidden">
+    <h3>2. Choose a family member</h3>
+    <div id="familyGrid" class="family-grid"></div>
+  </div>
+
+  <!-- Step 3: Sentence -->
+  <div id="stepSentence" class="prompt-section hidden">
+    <h3>3. Complete your sentence</h3>
+    <div id="sentenceBuilder" class="sentence-builder"></div>
+    <div id="sentenceHint" class="hint-box hidden"></div>
+    <div class="mt-1 text-center">
+      <button class="btn btn-green btn-sm" id="btnSay" type="button">Say it!</button>
+    </div>
+  </div>
+
+  <div id="conversation" class="conversation"></div>
+
+  <!-- Reactions -->
+  <div id="reactionSection" class="hidden">
+    <div class="prompt-section">
+      <h3 id="reactTitle">React!</h3>
+      <div id="reactions" class="reactions"></div>
+    </div>
+    <!-- Follow-up questions -->
+    <div id="followupSection" class="followup-section hidden">
+      <div class="followup-title">Bonus: Ask a follow-up question! (+1 point)</div>
+      <div id="followupGrid" class="followup-grid"></div>
+    </div>
+    <div class="help-tip mt-1" id="reactHelpTip"></div>
+  </div>
+
+  <div id="nextRoundSection" class="hidden text-center mt-2">
+    <button class="btn btn-orange" id="btnNextRound" type="button">Next Round</button>
+  </div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div id="screen-results" class="screen">
+  <div class="results-card">
+    <h2>Great conversation!</h2>
+    <p style="color:var(--muted)">You practised <span id="totalSentences">0</span> sentences together</p>
+    <div id="starBadge"></div>
+    <div class="final-scores">
+      <div class="final-score a"><div class="big" id="finalA">0</div><div class="label" id="finalNameA">A</div></div>
+      <div class="final-score b"><div class="big" id="finalB">0</div><div class="label" id="finalNameB">B</div></div>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div id="historyList" class="history-list"></div>
+    <button class="btn btn-pink btn-block mt-2" id="btnNewPair" type="button">New Pair</button>
+    <button class="btn btn-primary btn-block mt-1" id="btnSamePair" type="button">Same Pair, Play Again</button>
+  </div>
+</div>
+
+<!-- Streak popup -->
+<div class="streak-popup" id="streakPopup"></div>
+<!-- Speed bonus popup -->
+<div class="speed-bonus" id="speedBonus"></div>
+
+<script>
+// ══ CLASS ROSTER ══
+const CLASS_ROSTER = [
+  'Bao An', 'Minh Anh', 'Tram Anh', 'Thuy Anh', 'Hoang Bao',
+  'Gia Bao', 'Thai Binh', 'Minh Chau', 'Dang Duong', 'Minh Duc',
+  'Bao Han', 'Minh Hung', 'Gia Hy', 'Gia Khang', 'Bao Khang',
+  'Nguyen Khoa', 'Tuan Kiet', 'Phuong Lan', 'Hoang My', 'Dong Nam',
+  'Tran Nguyen', 'Y Nhu', 'Nhat Phong', 'Minh Phuc', 'Minh Quan',
+  'Nhat Quynh', 'Anh Tho', 'Anh Thu', 'Vuong Tri', 'Minh Triet',
+  'Khac Triet', 'Thanh Truc', 'Hoang Uy', 'Cat Vy', 'Thien Y',
+];
+
+// ══ VERBS WITH HINTS ══
+const VERBS = [
+  {
+    base: 'grow up', past: 'grew up', emoji: '\u{1F331}',
+    needsPlace: true, prep: 'in',
+    hints: ['My dad grew up in Da Nang.', 'My grandma grew up in a small village.', 'My mum grew up in Ho Chi Minh City.'],
+    placeTip: 'a city or place (Ha Noi, Hue, a village...)',
+  },
+  {
+    base: 'go to school', past: 'went to school', emoji: '\u{1F3EB}',
+    needsPlace: true, prep: 'in',
+    hints: ['My brother went to school in District 7.', 'My cousin went to school in Can Tho.'],
+    placeTip: 'where? (a city, district...)',
+  },
+  {
+    base: 'leave school', past: 'left school', emoji: '\u{1F393}',
+    needsPlace: false, detail: 'at age...',
+    hints: ['My uncle left school at age 16.', 'My grandad left school at age 14.'],
+    placeTip: 'at what age? (at age 15, at age 18...)',
+  },
+  {
+    base: 'go to university', past: 'went to university', emoji: '\u{1F4DA}',
+    needsPlace: true, prep: 'in',
+    hints: ['My dad went to university in Ha Noi.', 'My aunt went to university in Da Lat.'],
+    placeTip: 'which city? (Ha Noi, HCMC, Da Nang...)',
+  },
+  {
+    base: 'get a job', past: 'got a job', emoji: '\u{1F4BC}',
+    needsPlace: false, detail: 'as a...',
+    hints: ['My mum got a job as a teacher.', 'My uncle got a job as an engineer.', 'My dad got a job as a doctor.'],
+    placeTip: 'what job? (a teacher, a doctor, a driver...)',
+  },
+  {
+    base: 'get married', past: 'got married', emoji: '\u{1F492}',
+    needsPlace: true, prep: 'in',
+    hints: ['My parents got married in 2005.', 'My aunt got married in Hue.'],
+    placeTip: 'where or when? (in 2010, in Da Nang...)',
+  },
+  {
+    base: 'have children', past: 'had children', emoji: '\u{1F476}',
+    needsPlace: false,
+    hints: ['My uncle had children.', 'My grandparents had five children.'],
+    placeTip: null,
+  },
+  {
+    base: 'travel', past: 'travelled', emoji: '\u{2708}\u{FE0F}',
+    needsPlace: true, prep: 'to',
+    hints: ['My dad travelled to Japan.', 'My family travelled to Singapore.', 'My aunt travelled to France.'],
+    placeTip: 'where? (Japan, Korea, America...)',
+  },
+  {
+    base: 'visit', past: 'visited', emoji: '\u{1F30D}',
+    needsPlace: true, prep: '',
+    hints: ['My mum visited Ha Long Bay.', 'My cousin visited Paris.', 'My family visited Phu Quoc.'],
+    placeTip: 'what place? (Ha Long Bay, Da Lat, Tokyo...)',
+  },
+];
+
+const FAMILY = [
+  'My dad', 'My mum', 'My grandad', 'My grandma',
+  'My uncle', 'My aunt', 'My brother', 'My sister', 'My cousin',
+];
+
+const REACTIONS = [
+  'Really?', "That's interesting!", 'Cool!', 'Me too!',
+  'Wow!', 'No way!', "That's amazing!", 'Same here!',
+  'Oh nice!', 'How cool is that!',
+];
+
+const FOLLOWUPS = {
+  'grow up': ['Did they like it there?', 'Was it a big city?', 'Do they still live there?'],
+  'go to school': ['Was it a big school?', 'Did they like school?', 'Did they have many friends?'],
+  'leave school': ['What did they do after?', 'Did they get a job?', 'Was that young?'],
+  'go to university': ['What did they study?', 'Did they enjoy it?', 'For how many years?'],
+  'get a job': ['Do they still do that job?', 'Did they enjoy it?', 'Was it hard work?'],
+  'get married': ['How old were they?', 'Was it a big wedding?', 'Where did they meet?'],
+  'have children': ['How many children?', 'Boys or girls?', 'Are they older than you?'],
+  'travel': ['Did they enjoy it?', 'How long did they stay?', 'Did they go by plane?'],
+  'visit': ['Was it beautiful?', 'Did they enjoy it?', 'Would they go again?'],
+};
+
+const STREAKS = [
+  { at: 3, text: 'Nice streak!', emoji: '\u{1F525}' },
+  { at: 5, text: 'On fire!', emoji: '\u{1F525}\u{1F525}' },
+  { at: 7, text: 'Unstoppable!', emoji: '\u{1F680}' },
+  { at: 9, text: 'LEGENDARY!', emoji: '\u{1F31F}' },
+];
+
+// ══ TIMER CONFIG ══
+const ROUND_TIME = 60; // seconds per round
+const SPEED_BONUS_FAST = 15; // seconds — lightning bonus
+const SPEED_BONUS_OK = 30; // seconds — fast bonus
+
+// ══ STATE ══
+const state = {
+  nameA: '', nameB: '', totalRounds: 5, currentRound: 1,
+  scoreA: 0, scoreB: 0, phase: 'a-verb',
+  selectedVerb: null, selectedFamily: null,
+  usedVerbs: new Set(), history: [],
+  currentRoundData: { a: '', b: '', verb: '' },
+  totalSentences: 0,
+  // Timer
+  timerInterval: null, timeLeft: ROUND_TIME, roundStartTime: 0,
+  // Stats
+  totalTime: 0, speedBonuses: 0, fastestRound: Infinity,
+};
+
+// ══ HELPERS ══
+function $(id) { return document.getElementById(id); }
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); }
+function show(id) { $(id).classList.remove('hidden'); }
+function hide(id) { $(id).classList.add('hidden'); }
+function clearChildren(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+function setText(id, text) { $(id).textContent = text; }
+function makeEl(tag, cls, text) {
+  const el = document.createElement(tag);
+  if (cls) el.className = cls;
+  if (text) el.textContent = text;
+  return el;
+}
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══ TIMER ══
+function startTimer() {
+  state.timeLeft = ROUND_TIME;
+  state.roundStartTime = Date.now();
+  updateTimerDisplay();
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(() => {
+    state.timeLeft = Math.max(0, ROUND_TIME - Math.floor((Date.now() - state.roundStartTime) / 1000));
+    updateTimerDisplay();
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
+      handleTimeUp();
+    }
+  }, 250);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+  return Math.floor((Date.now() - state.roundStartTime) / 1000);
+}
+
+function updateTimerDisplay() {
+  const pct = (state.timeLeft / ROUND_TIME) * 100;
+  const fill = $('timerBarFill');
+  fill.style.width = pct + '%';
+  fill.classList.remove('warning', 'danger');
+  if (pct <= 20) fill.classList.add('danger');
+  else if (pct <= 45) fill.classList.add('warning');
+  setText('timerText', state.timeLeft + 's');
+}
+
+function handleTimeUp() {
+  // Auto-end round if time is up
+  if (state.phase.startsWith('a')) {
+    addBubble('System', 'Time\'s up! Moving on...', 'a');
+    state.history.push({
+      a: state.currentRoundData.a || '(no answer)',
+      b: '(no answer)',
+      verb: state.currentRoundData.verb || '—',
+      round: state.currentRound,
+      time: ROUND_TIME,
+    });
+  } else {
+    state.history.push({
+      a: state.currentRoundData.a,
+      b: state.currentRoundData.b || '(no answer)',
+      verb: state.currentRoundData.verb,
+      round: state.currentRound,
+      time: ROUND_TIME,
+    });
+  }
+
+  hide('stepVerb'); hide('stepFamily'); hide('stepSentence'); hide('reactionSection');
+
+  if (state.currentRound >= state.totalRounds) {
+    setTimeout(endGame, 600);
+  } else {
+    show('nextRoundSection');
+  }
+}
+
+function getRoundElapsed() {
+  return Math.floor((Date.now() - state.roundStartTime) / 1000);
+}
+
+function showSpeedBonus(seconds, who) {
+  let bonusPts = 0;
+  let label = '';
+  let cls = '';
+  if (seconds <= SPEED_BONUS_FAST) {
+    bonusPts = 3;
+    label = '\u26A1 LIGHTNING! +3';
+    cls = 'lightning';
+  } else if (seconds <= SPEED_BONUS_OK) {
+    bonusPts = 1;
+    label = '\u{1F3C3} Fast! +1';
+    cls = 'fast';
+  }
+  if (bonusPts === 0) return;
+
+  state.speedBonuses += bonusPts;
+  if (who === 'a') { state.scoreA += bonusPts; }
+  else { state.scoreB += bonusPts; }
+  updateScores();
+
+  // Animate score
+  const ptsEl = $(who === 'a' ? 'scoreA' : 'scoreB');
+  ptsEl.classList.remove('pts-pop');
+  void ptsEl.offsetWidth;
+  ptsEl.classList.add('pts-pop');
+
+  // Show popup
+  const popup = $('speedBonus');
+  popup.textContent = label;
+  popup.className = 'speed-bonus ' + cls;
+  void popup.offsetWidth;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 1000);
+}
+
+// ══ PAIR PICKER ══
+function shufflePair() {
+  const shuffled = shuffle(CLASS_ROSTER);
+  const cardA = $('pairNameA');
+  const cardB = $('pairNameB');
+  const parentA = cardA.parentElement;
+  const parentB = cardB.parentElement;
+
+  parentA.classList.add('spinning');
+  parentB.classList.add('spinning');
+
+  setTimeout(() => {
+    cardA.textContent = shuffled[0];
+    cardB.textContent = shuffled[1];
+    parentA.classList.remove('spinning');
+    parentB.classList.remove('spinning');
+  }, 350);
+}
+
+// ══ ROUND OPTIONS ══
+function initRoundOptions() {
+  const container = $('roundOptions');
+  [3, 5, 7, 9].forEach(n => {
+    const btn = makeEl('button', 'round-opt-btn' + (n === 5 ? ' active' : ''), String(n));
+    btn.type = 'button';
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.round-opt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.totalRounds = n;
+    });
+    container.appendChild(btn);
+  });
+}
+
+// ══ VERB GRID ══
+function renderVerbGrid() {
+  const grid = $('verbGrid');
+  clearChildren(grid);
+  VERBS.forEach((v, i) => {
+    const chip = makeEl('div', 'verb-chip' + (state.usedVerbs.has(i) ? ' used' : ''));
+    chip.dataset.idx = i;
+
+    const emoji = makeEl('span', 'verb-emoji', v.emoji);
+    chip.appendChild(emoji);
+    chip.appendChild(document.createTextNode(v.base));
+    const pastSpan = makeEl('span', 'past', v.past);
+    chip.appendChild(pastSpan);
+
+    chip.addEventListener('click', () => pickVerb(i));
+    grid.appendChild(chip);
+  });
+  hide('verbHint');
+}
+
+function pickVerb(idx) {
+  if (state.usedVerbs.has(idx)) return;
+  state.selectedVerb = idx;
+  $('verbGrid').querySelectorAll('.verb-chip').forEach(c => c.classList.remove('selected'));
+  $('verbGrid').querySelector('[data-idx="' + idx + '"]').classList.add('selected');
+
+  // Show hint
+  const v = VERBS[idx];
+  const hintBox = $('verbHint');
+  clearChildren(hintBox);
+
+  const title = makeEl('div', 'hint-title', 'Example sentences:');
+  hintBox.appendChild(title);
+
+  const randomHints = shuffle(v.hints).slice(0, 2);
+  randomHints.forEach(h => {
+    const ex = makeEl('div', 'hint-example', '"' + h + '"');
+    hintBox.appendChild(ex);
+  });
+
+  show('verbHint');
+  show('stepFamily');
+  renderFamilyGrid();
+}
+
+// ══ FAMILY GRID ══
+function renderFamilyGrid() {
+  const grid = $('familyGrid');
+  clearChildren(grid);
+  FAMILY.forEach((f, i) => {
+    const pill = makeEl('div', 'family-pill', f);
+    pill.dataset.idx = i;
+    pill.addEventListener('click', () => pickFamily(i));
+    grid.appendChild(pill);
+  });
+}
+
+function pickFamily(idx) {
+  state.selectedFamily = idx;
+  $('familyGrid').querySelectorAll('.family-pill').forEach(p => p.classList.remove('selected'));
+  $('familyGrid').querySelector('[data-idx="' + idx + '"]').classList.add('selected');
+  show('stepSentence');
+  buildSentence();
+}
+
+// ══ BUILD SENTENCE ══
+function buildSentence() {
+  const v = VERBS[state.selectedVerb];
+  const f = FAMILY[state.selectedFamily];
+  const builder = $('sentenceBuilder');
+  clearChildren(builder);
+
+  builder.appendChild(makeEl('span', 'slot slot-family', f));
+  builder.appendChild(makeEl('span', 'slot slot-verb', v.past));
+
+  if (v.needsPlace) {
+    if (v.prep) builder.appendChild(makeEl('span', '', v.prep));
+    const input = document.createElement('input');
+    input.className = 'place-input';
+    input.id = 'placeInput';
+    input.placeholder = v.placeTip || 'where?';
+    input.autocomplete = 'off';
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') saySentence(); });
+    builder.appendChild(input);
+    setTimeout(() => input.focus(), 50);
+  } else if (v.detail) {
+    const input = document.createElement('input');
+    input.className = 'place-input';
+    input.id = 'placeInput';
+    input.placeholder = v.placeTip || v.detail;
+    input.autocomplete = 'off';
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') saySentence(); });
+    builder.appendChild(input);
+    setTimeout(() => input.focus(), 50);
+  }
+
+  builder.appendChild(makeEl('span', '', '.'));
+
+  // Sentence hint
+  const hintBox = $('sentenceHint');
+  clearChildren(hintBox);
+  if (v.placeTip) {
+    const tip = makeEl('div', 'hint-title', 'Hint');
+    hintBox.appendChild(tip);
+    const tipText = makeEl('div', '', 'Type ' + v.placeTip);
+    tipText.style.color = 'var(--muted)';
+    tipText.style.fontSize = '.8rem';
+    hintBox.appendChild(tipText);
+    show('sentenceHint');
+  } else {
+    hide('sentenceHint');
+  }
+}
+
+// ══ SAY SENTENCE ══
+function saySentence() {
+  const v = VERBS[state.selectedVerb];
+  const f = FAMILY[state.selectedFamily];
+  const placeInput = $('placeInput');
+  const detail = placeInput ? placeInput.value.trim() : '';
+
+  if ((v.needsPlace || v.detail) && !detail) {
+    if (placeInput) {
+      placeInput.style.borderBottomColor = 'var(--red)';
+      placeInput.focus();
+    }
+    return;
+  }
+
+  let sentence = f + ' ' + v.past;
+  if (v.needsPlace && detail) sentence += ' ' + (v.prep ? v.prep + ' ' : '') + detail;
+  else if (v.detail && detail) sentence += ' ' + detail;
+  sentence += '.';
+
+  const elapsed = getRoundElapsed();
+
+  if (state.phase.startsWith('a')) {
+    state.currentRoundData.a = sentence;
+    state.currentRoundData.verb = v.base;
+    state.currentRoundData.aTime = elapsed;
+    addBubble(state.nameA, sentence, 'a');
+    state.scoreA += 1;
+    state.totalSentences++;
+    state.usedVerbs.add(state.selectedVerb);
+    updateScores();
+    showSpeedBonus(elapsed, 'a');
+    checkStreak(state.totalSentences);
+
+    state.phase = 'b-react';
+    setTurn('b');
+    showReactions();
+    hide('stepVerb');
+    hide('stepFamily');
+    hide('stepSentence');
+  } else {
+    const roundTime = getRoundElapsed();
+    state.currentRoundData.b = sentence;
+    addBubble(state.nameB, sentence, 'b');
+    state.scoreB += 1;
+    state.totalSentences++;
+    updateScores();
+    showSpeedBonus(roundTime - (state.currentRoundData.aTime || 0), 'b');
+    checkStreak(state.totalSentences);
+
+    const totalRoundTime = stopTimer();
+    state.totalTime += totalRoundTime;
+    if (totalRoundTime < state.fastestRound) state.fastestRound = totalRoundTime;
+
+    hide('stepVerb');
+    hide('stepFamily');
+    hide('stepSentence');
+    hide('reactionSection');
+
+    state.history.push({
+      a: state.currentRoundData.a,
+      b: state.currentRoundData.b,
+      verb: state.currentRoundData.verb,
+      round: state.currentRound,
+      time: totalRoundTime,
+    });
+
+    if (state.currentRound >= state.totalRounds) {
+      setTimeout(endGame, 800);
+    } else {
+      show('nextRoundSection');
+    }
+  }
+}
+
+// ══ REACTIONS + FOLLOW-UPS ══
+function showReactions() {
+  show('reactionSection');
+  setText('reactTitle', 'React to what ' + state.nameA + ' said!');
+  $('reactHelpTip').textContent = 'Now ' + state.nameB + ", it's your turn! Pick a verb and share YOUR sentence.";
+
+  const container = $('reactions');
+  clearChildren(container);
+  shuffle(REACTIONS).slice(0, 5).forEach(r => {
+    const btn = makeEl('button', 'reaction-btn', r);
+    btn.type = 'button';
+    btn.addEventListener('click', () => react(r));
+    container.appendChild(btn);
+  });
+
+  // Show follow-up questions
+  const verbBase = VERBS[state.selectedVerb].base;
+  const followups = FOLLOWUPS[verbBase];
+  if (followups) {
+    const fGrid = $('followupGrid');
+    clearChildren(fGrid);
+    shuffle(followups).slice(0, 2).forEach(q => {
+      const btn = makeEl('button', 'followup-btn', q);
+      btn.type = 'button';
+      btn.addEventListener('click', () => askFollowup(q));
+      fGrid.appendChild(btn);
+    });
+    show('followupSection');
+  }
+}
+
+function react(text) {
+  addBubble(state.nameB, text, 'b');
+  afterReaction();
+}
+
+function askFollowup(question) {
+  addBubble(state.nameB, question, 'b');
+  state.scoreB += 1;
+  updateScores();
+  hide('followupSection');
+  afterReaction();
+}
+
+function afterReaction() {
+  state.phase = 'b-verb';
+  state.selectedVerb = null;
+  state.selectedFamily = null;
+
+  clearChildren($('reactions'));
+  hide('followupSection');
+  setText('reactTitle', 'Now ' + state.nameB + ', share YOUR sentence!');
+
+  show('stepVerb');
+  renderVerbGrid();
+}
+
+// ══ STREAK ══
+function checkStreak(count) {
+  const s = STREAKS.find(s => s.at === count);
+  if (!s) return;
+  const popup = $('streakPopup');
+  popup.textContent = s.emoji + ' ' + s.text + ' ' + s.emoji;
+  popup.classList.remove('show');
+  void popup.offsetWidth;
+  popup.classList.add('show');
+}
+
+// ══ TURN MANAGEMENT ══
+function setTurn(who) {
+  $('turnBanner').className = 'turn-banner turn-' + who;
+  setText('turnName', who === 'a' ? state.nameA : state.nameB);
+}
+
+function addBubble(name, text, who) {
+  const conv = $('conversation');
+  const bubble = makeEl('div', 'bubble bubble-' + who);
+  bubble.appendChild(makeEl('div', 'speaker', name));
+  bubble.appendChild(document.createTextNode(text));
+  conv.appendChild(bubble);
+  conv.scrollTop = conv.scrollHeight;
+}
+
+function updateScores() {
+  setText('scoreA', state.scoreA);
+  setText('scoreB', state.scoreB);
+}
+
+// ══ ROUNDS ══
+function startRound() {
+  state.phase = 'a-verb';
+  state.selectedVerb = null;
+  state.selectedFamily = null;
+  state.currentRoundData = { a: '', b: '', verb: '' };
+
+  setText('roundIndicator', 'Round ' + state.currentRound + ' / ' + state.totalRounds);
+  updateScores();
+  setTurn('a');
+  clearChildren($('conversation'));
+
+  show('stepVerb');
+  hide('stepFamily');
+  hide('stepSentence');
+  hide('reactionSection');
+  hide('nextRoundSection');
+
+  renderVerbGrid();
+  startTimer();
+}
+
+// ══ END GAME ══
+function endGame() {
+  showScreen('screen-results');
+  const total = state.history.length * 2;
+  setText('totalSentences', String(total));
+  setText('finalA', String(state.scoreA));
+  setText('finalB', String(state.scoreB));
+  setText('finalNameA', state.nameA);
+  setText('finalNameB', state.nameB);
+
+  stopTimer();
+
+  // Star badge
+  const badge = $('starBadge');
+  clearChildren(badge);
+  let badgeText = '';
+  if (total >= 14) badgeText = 'Legendary Speakers!';
+  else if (total >= 10) badgeText = 'Super Speakers!';
+  else if (total >= 6) badgeText = 'Great Job!';
+  else badgeText = 'Good Start!';
+  const span = makeEl('span', 'star-badge', badgeText);
+  badge.appendChild(span);
+
+  // Stats grid
+  const statsGrid = $('statsGrid');
+  clearChildren(statsGrid);
+  const avgTime = state.history.length > 0 ? Math.round(state.totalTime / state.history.length) : 0;
+  const fastest = state.fastestRound === Infinity ? 0 : state.fastestRound;
+  const statsData = [
+    { value: state.totalTime + 's', label: 'Total time' },
+    { value: avgTime + 's', label: 'Avg / round' },
+    { value: fastest + 's', label: 'Fastest round' },
+  ];
+  statsData.forEach(s => {
+    const card = makeEl('div', 'stat-card');
+    card.appendChild(makeEl('div', 'stat-value', s.value));
+    card.appendChild(makeEl('div', 'stat-label', s.label));
+    statsGrid.appendChild(card);
+  });
+
+  // History
+  const list = $('historyList');
+  clearChildren(list);
+  const title = makeEl('h3', '', 'Conversation History');
+  title.style.cssText = 'margin-bottom:.6rem;color:var(--muted);font-size:.8rem;text-transform:uppercase';
+  list.appendChild(title);
+
+  state.history.forEach(h => {
+    const item = makeEl('div', 'history-item');
+    const roundInfo = 'Round ' + h.round + ' \u2014 ' + h.verb + (h.time != null ? ' \u23F1 ' + h.time + 's' : '');
+    item.appendChild(makeEl('div', 'hi-round', roundInfo));
+
+    const lineA = document.createElement('div');
+    lineA.appendChild(makeEl('strong', '', state.nameA + ': '));
+    lineA.appendChild(document.createTextNode(h.a));
+    item.appendChild(lineA);
+
+    const lineB = document.createElement('div');
+    lineB.appendChild(makeEl('strong', '', state.nameB + ': '));
+    lineB.appendChild(document.createTextNode(h.b));
+    item.appendChild(lineB);
+
+    list.appendChild(item);
+  });
+
+  spawnConfetti();
+}
+
+function resetFull() {
+  clearInterval(state.timerInterval);
+  state.usedVerbs.clear();
+  state.currentRound = 1;
+  state.scoreA = 0;
+  state.scoreB = 0;
+  state.totalSentences = 0;
+  state.history = [];
+  state.totalTime = 0;
+  state.speedBonuses = 0;
+  state.fastestRound = Infinity;
+}
+
+// ══ CONFETTI ══
+function spawnConfetti() {
+  const colors = ['#6c5ce7','#00b894','#fdcb6e','#fd79a8','#74b9ff','#ff7675','#55efc4','#a29bfe'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 1.5 + 's';
+    el.style.width = (6 + Math.random() * 8) + 'px';
+    el.style.height = (6 + Math.random() * 8) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+// ══ INIT ══
+initRoundOptions();
+shufflePair();
+
+$('btnShuffle').addEventListener('click', shufflePair);
+
+$('btnStart').addEventListener('click', () => {
+  state.nameA = $('pairNameA').textContent.trim();
+  state.nameB = $('pairNameB').textContent.trim();
+  if (state.nameA === '---' || state.nameB === '---') { shufflePair(); return; }
+  resetFull();
+  setText('scoreNameA', state.nameA);
+  setText('scoreNameB', state.nameB);
+  showScreen('screen-game');
+  startRound();
+});
+
+$('btnSay').addEventListener('click', saySentence);
+$('btnNextRound').addEventListener('click', () => { state.currentRound++; startRound(); });
+
+$('btnNewPair').addEventListener('click', () => {
+  resetFull();
+  showScreen('screen-setup');
+  shufflePair();
+});
+
+$('btnSamePair').addEventListener('click', () => {
+  resetFull();
+  setText('scoreNameA', state.nameA);
+  setText('scoreNameB', state.nameB);
+  showScreen('screen-game');
+  startRound();
+});
+</script>
+</body>
+</html>
